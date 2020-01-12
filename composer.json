@@ -10,7 +10,7 @@
   ],
   "require": {
     "php": "^7.2",
-    "hrace009/laravel6settings": "^1.0"
+    "hrace009/laravel6settings": "1.*"
   },
   "autoload": {
     "psr-0" : {
