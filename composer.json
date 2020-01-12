@@ -1,0 +1,21 @@
+{
+  "name": "hrace009/pw-api",
+  "description": "A package to retrieve data from a Perfect World game server",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Harris Marfel",
+      "email": "hrace009@gmail.com"
+    }
+  ],
+  "require": {
+    "php": "^7.2",
+    "hrace009/laravel6settings": "^1.0"
+  },
+  "autoload": {
+    "psr-0" : {
+      "hrace009\\PerfectWorldAPI" : "src/"
+    }
+  },
+  "minimum-stability": "stable"
+}
