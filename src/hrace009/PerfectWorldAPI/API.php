@@ -1,6 +1,13 @@
 <?php
+/**
+ * @author Harris Marfel <hrace009@gmail.com>
+ * @link https://www.hrace009.com
+ * @copyright Copyright (c) 2020.
+ */
 
 namespace hrace009\PerfectWorldAPI;
+
+use Exception;
 
 /**
  * Class API
@@ -12,7 +19,7 @@ class API
     public $online;
 
     public $data = [];
-    
+
     public $gamed;
 
     public function __construct()
@@ -24,17 +31,13 @@ class API
         // Check if there is a protocol file for the set game version
         $version = settings( 'server_version', '156' );
 
-        if ( file_exists( __DIR__ . '/../../protocols/pw_v' . $version . '.php' ) )
-        {
+        if ( file_exists( __DIR__ . '/../../protocols/pw_v' . $version . '.php' ) ) {
             require( __DIR__ . '/../../protocols/pw_v' . $version . '.php' );
-            if ( isset( $PROTOCOL ) )
-            {
+            if ( isset( $PROTOCOL ) ) {
                 $this->data = $PROTOCOL;
             }
-        }
-        else
-        {
-            throw new \Exception( trans( 'pw-api-messages.no_version', ['version' => $version] ) );
+        } else {
+            throw new Exception(trans('pw-api-messages.no_version', ['version' => $version]));
         }
     }
 
@@ -46,25 +49,21 @@ class API
      */
     public function getRole($role)
     {
-        if ( settings( 'server_version' ) == '07' )
-        {
+        if ( settings( 'server_version' ) == '07' ) {
             $user['base'] = $this->getRoleBase($role);
             $user['status'] = $this->getRoleStatus($role);
             $user['pocket'] = $this->getRoleInventory($role);
             $user['equipment'] = $this->getRoleEquipment($role);
             $user['storehouse'] = $this->getRoleStoreHouse($role);
             $user['task'] = $this->getRoleTask($role);
-        }
-        else
-        {
+        } else {
             $pack = pack("N*", -1, $role);
             $pack = $this->gamed->createHeader( $this->data['code']['getRole'], $pack );
             $send = $this->gamed->SendToGamedBD( $pack );
             $data = $this->gamed->deleteHeader( $send );
             $user = $this->gamed->unmarshal( $data, $this->data['role'] );
 
-            if( !is_array( $user ) )
-            {
+            if( !is_array( $user ) ) {
                 $user['base'] = $this->getRoleBase($role);
                 $user['status'] = $this->getRoleStatus($role);
                 $user['pocket'] = $this->getRoleInventory($role);
@@ -181,8 +180,7 @@ class API
             'pk_count' => 0,
             'dead_flag' => 0
         );
-        if ($var_data !== '')
-        {
+        if ($var_data !== '') {
             $data = $this->parseOctet($var_data, 'var_data');
             $result = array(
                 'pk_count' => $data['pk_count'],
@@ -220,12 +218,9 @@ class API
         $data = $this->gamed->cuint($this->data['code']['getUser']).$this->gamed->cuint(strlen($pack)).$pack;
         $send = $this->gamed->SendToGamedBD($data);
         $strlarge = unpack("H", substr($send, 2, 1 ));
-        if(substr($strlarge[1], 0, 1) == 8)
-        {
+        if(substr($strlarge[1], 0, 1) == 8) {
             $tmp =	12;
-        }
-        else
-        {
+        } else {
             $tmp = 11;
         }
         $send = substr($send, $tmp);
@@ -244,50 +239,41 @@ class API
      */
     public function putRole($role, $params)
     {
-        if(isset($params['equipment']['eqp']['id']))
-        {
+        if(isset($params['equipment']['eqp']['id'])) {
             $tmp = $params['equipment']['eqp'];
             $params['equipment']['eqp'] = array();
             $params['equipment']['eqp'][] = $tmp;
         }
-        if(isset($params['pocket']['inv']['id']))
-        {
+        if(isset($params['pocket']['inv']['id'])) {
             $tmp = $params['pocket']['inv'];
             $params['pocket']['inv'] = array();
             $params['pocket']['inv'][] = $tmp;
         }
-        if(isset($params['storehouse']['store']['id']))
-        {
+        if(isset($params['storehouse']['store']['id'])) {
             $tmp = $params['storehouse']['store'];
             $params['storehouse']['store'] = array();
             $params['storehouse']['store'][] = $tmp;
         }
-        if(isset($params['task']['task_inventory']['id']))
-        {
+        if(isset($params['task']['task_inventory']['id'])) {
             $tmp = $params['task']['task_inventory'];
             $params['task']['task_inventory'] = array();
             $params['task']['task_inventory'][] = $tmp;
         }
-        if(isset($params['storehouse']['dress']['id']))
-        {
+        if(isset($params['storehouse']['dress']['id'])) {
             $tmp = $params['storehouse']['dress'];
             $params['storehouse']['dress'] = array();
             $params['storehouse']['dress'][] = $tmp;
         }
-        if(isset($params['storehouse']['material']['id']))
-        {
+        if(isset($params['storehouse']['material']['id'])) {
             $tmp = $params['storehouse']['material'];
             $params['storehouse']['material'] = array();
             $params['storehouse']['material'][] = $tmp;
         }
-        if ( settings( 'server_version' ) != '07' )
-        {
+        if ( settings( 'server_version' ) != '07' ) {
             $pack = pack( "NNC*", -1, $role, 1).$this->gamed->marshal( $params, $this->data['role'] );
 
             return $this->gamed->SendToGamedBD( $this->gamed->createHeader( $this->data['code']['putRole'], $pack ) );
-        }
-        else
-        {
+        } else {
             $pack = pack( "NNC*", -1, $role ) . $this->gamed->marshal( $params["base"], $this->data['role']['base'] );
             $this->gamed->SendToGamedBD( $this->gamed->createHeader( $this->data['code']['putRoleBase'], $pack ) );
             $pack = pack( "NNC*", -1, $role ) . $this->gamed->marshal( $params["status"], $this->data['role']['status'] );
@@ -315,8 +301,7 @@ class API
      */
     public function sendMail( $receiver, $title, $context, $item = array(), $money )
     {
-        if( $item === array() )
-        {
+        if( $item === array() ) {
             $item = array(
                 'id' => 0,
                 'pos' => 0,
@@ -418,8 +403,7 @@ class API
         $pack = pack("N", -1).$this->gamed->packString($rolename).pack("C", 1);
         $data = $this->gamed->deleteHeader($this->gamed->SendToGamedBD($this->gamed->createHeader($this->data['code']['getRoleid'], $pack)));
         $var = unpack("l", $data);
-        if($var[1] !== -1)
-        {
+        if($var[1] !== -1) {
             $var = unpack("N", $data);
         }
         return $var[1];
@@ -445,8 +429,7 @@ class API
     public function getOnlineList()
     {
         $online = [];
-        if ( $this->online )
-        {
+        if ( $this->online ) {
             $id = 0;
             $pack = pack( 'N*', -1, 1, $id ) . $this->gamed->packString( '1' );
             $pack = $this->gamed->createHeader( 352, $pack );
@@ -454,10 +437,8 @@ class API
             $data = $this->gamed->deleteHeader($send);
             $data = $this->gamed->unmarshal( $data, $this->data['RoleList'] );
 
-            if ( isset( $data['users'] ) )
-            {
-                foreach ( $data['users'] as $user )
-                {
+            if ( isset( $data['users'] ) ) {
+                foreach ($data['users'] as $user ) {
                     $online[] = $user;
                     //$id = $this->gamed->MaxOnlineUserID( $data['users'] );
                 }
@@ -600,8 +581,7 @@ class API
     {
         $ports = [];
         $port_list = config( 'pw-api.ports' );
-        foreach ( $port_list as $name => $port )
-        {
+        foreach ($port_list as $name => $port ) {
             $ports[$name]['port'] = $port;
             $ports[$name]['open'] = @fsockopen( settings( 'server_ip', '127.0.0.1' ), $port, $errCode, $errStr, 1 ) ? TRUE : FALSE;
         }
@@ -618,10 +598,8 @@ class API
         $result = false;
         $totalOnline = $this->getOnlineList();
 
-        foreach( $totalOnline as $online )
-        {
-            if ( $online['roleid'] === $role )
-            {
+        foreach($totalOnline as $online ) {
+            if ( $online['roleid'] === $role ) {
                 $result = true;
             }
         }
