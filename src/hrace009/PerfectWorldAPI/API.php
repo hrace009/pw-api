@@ -589,7 +589,7 @@ class API
      */
     public function serverOnline()
     {
-        return @fsockopen(setting('server.ip', '127.0.0.1'), config('pw-api.ports.client'), $errCode, $errStr, 1) ? TRUE : FALSE;
+        return @fsockopen(settings('server_ip', '127.0.0.1'), config('pw-api.ports.client'), $errCode, $errStr, 1) ? TRUE : FALSE;
     }
 
     /**
