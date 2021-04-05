@@ -38,23 +38,35 @@ class Gamed
 
     public function createHeader($opcode, $data)
     {
-        return $this->cuint($opcode).$this->cuint(strlen($data)).$data;
+        return $this->cuint($opcode) . $this->cuint(strlen($data)) . $data;
     }
 
     public function packString($data)
     {
         $data = iconv("UTF-8", "UTF-16LE", $data);
-        return $this->cuint(strlen($data)).$data;
+        return $this->cuint(strlen($data)) . $data;
     }
+
+    public function packString2($data)
+    {
+        $PacketLenght = strlen($data);
+        if ($PacketLenght < 128) {
+            $PacketLenght = pack("C*", $PacketLenght);
+        } else {
+            $PacketLenght = pack("n*", $PacketLenght + 32768);
+        }
+        return $PacketLenght . $data;
+    }
+
     public function packLongOctet($data)
     {
-        return  pack("n",strlen($data)+32768).$data;
+        return pack("n", strlen($data) + 32768) . $data;
     }
 
     public function packOctet($data)
     {
         $data = pack("H*", (string)$data);
-        return $this->cuint(strlen($data)).$data;
+        return $this->cuint(strlen($data)) . $data;
     }
 
     public function packInt($data)
